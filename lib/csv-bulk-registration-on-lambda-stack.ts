@@ -3,7 +3,10 @@ import { Construct } from 'constructs'
 import * as lambdaNodejs from 'aws-cdk-lib/aws-lambda-nodejs'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import * as s3 from 'aws-cdk-lib/aws-s3'
-import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources'
+import {
+    S3EventSource,
+    SqsEventSource,
+} from 'aws-cdk-lib/aws-lambda-event-sources'
 
 export class CsvBulkRegistrationOnLambdaStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -22,5 +25,16 @@ export class CsvBulkRegistrationOnLambdaStack extends cdk.Stack {
             versioned: true,
             removalPolicy: cdk.RemovalPolicy.RETAIN,
         })
+
+        putHandler.addEventSource(
+            new S3EventSource(putHandlerBucket, {
+                events: [s3.EventType.OBJECT_CREATED],
+                filters: [
+                    {
+                        prefix: 'testitems/',
+                    },
+                ],
+            })
+        )
     }
 }
