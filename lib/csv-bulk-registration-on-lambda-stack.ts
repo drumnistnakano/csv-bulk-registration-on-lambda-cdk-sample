@@ -1,16 +1,19 @@
-import * as cdk from 'aws-cdk-lib';
-import { Construct } from 'constructs';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as cdk from "aws-cdk-lib";
+import { Construct } from "constructs";
+import * as lambdaNodejs from "aws-cdk-lib/aws-lambda-nodejs";
+import * as lambda from "aws-cdk-lib/aws-lambda";
 
 export class CsvBulkRegistrationOnLambdaStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // The code that defines your stack goes here
-
-    // example resource
-    // const queue = new sqs.Queue(this, 'CsvBulkRegistrationOnLambdaQueue', {
-    //   visibilityTimeout: cdk.Duration.seconds(300)
-    // });
+    const handler = new lambdaNodejs.NodejsFunction(
+      this,
+      "CsvBulkRegistrationHandler",
+      {
+        runtime: lambda.Runtime.NODEJS_18_X,
+        entry: "lambda/handler.ts",
+      }
+    );
   }
 }
