@@ -2,7 +2,7 @@ import * as cdk from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 import * as lambdaNodejs from 'aws-cdk-lib/aws-lambda-nodejs'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
-import * as sqs from 'aws-cdk-lib/aws-sqs'
+import * as s3 from 'aws-cdk-lib/aws-s3'
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources'
 
 export class CsvBulkRegistrationOnLambdaStack extends cdk.Stack {
@@ -12,18 +12,15 @@ export class CsvBulkRegistrationOnLambdaStack extends cdk.Stack {
         const putHandler = new lambdaNodejs.NodejsFunction(this, 'putHandler', {
             runtime: lambda.Runtime.NODEJS_18_X,
             entry: 'lambda/put-handler.ts',
+            timeout: cdk.Duration.minutes(15),
         })
 
-        const queueForPutHandler = new sqs.Queue(this, 'queueForPutHandler', {
-            queueName: 'queueForPutHandler',
+        const putHandlerBucket = new s3.Bucket(this, 'putHandlerBucket', {
+            bucketName: `${this.account}-put-handler-bucket`,
+            blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+            encryption: s3.BucketEncryption.S3_MANAGED,
+            versioned: true,
+            removalPolicy: cdk.RemovalPolicy.RETAIN,
         })
-
-        putHandler.addEventSource(
-            new SqsEventSource(queueForPutHandler, {
-                batchSize: 1,
-                maxBatchingWindow: cdk.Duration.seconds(60),
-                maxConcurrency: 1,
-            })
-        )
     }
 }
