@@ -3,10 +3,7 @@ import { Construct } from 'constructs'
 import * as lambdaNodejs from 'aws-cdk-lib/aws-lambda-nodejs'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import * as s3 from 'aws-cdk-lib/aws-s3'
-import {
-    S3EventSource,
-    SqsEventSource,
-} from 'aws-cdk-lib/aws-lambda-event-sources'
+import { S3EventSource } from 'aws-cdk-lib/aws-lambda-event-sources'
 
 export class CsvBulkRegistrationOnLambdaStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
