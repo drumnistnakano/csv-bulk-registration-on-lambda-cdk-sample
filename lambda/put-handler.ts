@@ -28,6 +28,6 @@ exports.handler = async (event: S3Event): Promise<void> => {
     const csvSjisBuffer = Buffer.from(csvSjisByteArray)
     const csvStr = decode(csvSjisBuffer, 'Shift_JIS')
 
-    const rows = parse(csvStr)
+    const rows = parse(csvStr, { columns: true })
     console.log(rows)
 }
