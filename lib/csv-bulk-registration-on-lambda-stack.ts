@@ -23,6 +23,8 @@ export class CsvBulkRegistrationOnLambdaStack extends cdk.Stack {
             removalPolicy: cdk.RemovalPolicy.RETAIN,
         })
 
+        putHandlerBucket.grantRead(putHandler)
+
         putHandler.addEventSource(
             new S3EventSource(putHandlerBucket, {
                 events: [s3.EventType.OBJECT_CREATED],
