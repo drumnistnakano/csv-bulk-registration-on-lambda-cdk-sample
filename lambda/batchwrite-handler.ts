@@ -39,7 +39,6 @@ exports.handler = async (event: S3Event): Promise<void> => {
         updatedAt: faker.date.recent().toISOString(),
     }))
 
-    // 10000件のデータを作成
     const chunkedAllItems = chunk(items, 25)
     for (const items of chunkedAllItems) {
         const result = await ddbDoc.batchWrite({
