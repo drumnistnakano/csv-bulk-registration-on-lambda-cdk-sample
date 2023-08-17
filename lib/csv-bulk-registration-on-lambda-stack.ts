@@ -57,6 +57,50 @@ export class CsvBulkRegistrationOnLambdaStack extends cdk.Stack {
             })
         )
 
+        const putPromissAllHandler = new lambdaNodejs.NodejsFunction(
+            this,
+            'putPromissAllHandler',
+            {
+                runtime: lambda.Runtime.NODEJS_18_X,
+                entry: 'lambda/put-promiss-all-handler.ts',
+                timeout: cdk.Duration.minutes(15),
+                memorySize: 10240,
+                reservedConcurrentExecutions: 1, // 同時実行数1
+                tracing: cdk.aws_lambda.Tracing.ACTIVE,
+                architecture: cdk.aws_lambda.Architecture.ARM_64,
+                environment: {
+                    DYNAMODB_TABLE_NAME: ddbTable.tableName,
+                },
+            }
+        )
+
+        ddbTable.grantReadWriteData(putPromissAllHandler)
+
+        const putPromissAllHandlerBucket = new s3.Bucket(
+            this,
+            'putPromissAllHandlerBucket',
+            {
+                bucketName: `${this.account}-put-promiss-all-handler-bucket`,
+                blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+                encryption: s3.BucketEncryption.S3_MANAGED,
+                versioned: true,
+                removalPolicy: cdk.RemovalPolicy.RETAIN,
+            }
+        )
+
+        putPromissAllHandlerBucket.grantRead(putPromissAllHandler)
+
+        putPromissAllHandler.addEventSource(
+            new S3EventSource(putPromissAllHandlerBucket, {
+                events: [s3.EventType.OBJECT_CREATED],
+                filters: [
+                    {
+                        prefix: 'testitems/',
+                    },
+                ],
+            })
+        )
+
         const batchWriteHandler = new lambdaNodejs.NodejsFunction(
             this,
             'batchWriteHandler',
