@@ -43,11 +43,12 @@ exports.handler = async (event: S3Event): Promise<void> => {
     for (const items of chunkedAllItems) {
         await Promise.all(
             items.map((item) =>
-            await ddbDoc.send(
-                new PutCommand({
-                    TableName: ddbTable,
-                    Item: item,
-                })
+                ddbDoc.send(
+                    new PutCommand({
+                        TableName: ddbTable,
+                        Item: item,
+                    })
+                )
             )
         )
     }
