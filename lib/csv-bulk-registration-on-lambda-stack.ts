@@ -25,6 +25,10 @@ export class CsvBulkRegistrationOnLambdaStack extends cdk.Stack {
             runtime: lambda.Runtime.NODEJS_18_X,
             entry: 'lambda/put-handler.ts',
             timeout: cdk.Duration.minutes(15),
+            memorySize: 10240,
+            reservedConcurrentExecutions: 1, // 同時実行数1
+            tracing: cdk.aws_lambda.Tracing.ACTIVE,
+            architecture: cdk.aws_lambda.Architecture.ARM_64,
             environment: {
                 DYNAMODB_TABLE_NAME: ddbTable.tableName,
             },
