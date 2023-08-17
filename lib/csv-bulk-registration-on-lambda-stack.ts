@@ -56,5 +56,49 @@ export class CsvBulkRegistrationOnLambdaStack extends cdk.Stack {
                 ],
             })
         )
+
+        const batchWriteHandler = new lambdaNodejs.NodejsFunction(
+            this,
+            'batchWriteHandler',
+            {
+                runtime: lambda.Runtime.NODEJS_18_X,
+                entry: 'lambda/batchwrite-handler.ts',
+                timeout: cdk.Duration.minutes(15),
+                memorySize: 10240,
+                reservedConcurrentExecutions: 1, // 同時実行数1
+                tracing: cdk.aws_lambda.Tracing.ACTIVE,
+                architecture: cdk.aws_lambda.Architecture.ARM_64,
+                environment: {
+                    DYNAMODB_TABLE_NAME: ddbTable.tableName,
+                },
+            }
+        )
+
+        ddbTable.grantReadWriteData(batchWriteHandler)
+
+        const batchWriteHandlerBucket = new s3.Bucket(
+            this,
+            'batchWriteHandlerBucket',
+            {
+                bucketName: `${this.account}-batchwrite-handler-bucket`,
+                blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+                encryption: s3.BucketEncryption.S3_MANAGED,
+                versioned: true,
+                removalPolicy: cdk.RemovalPolicy.RETAIN,
+            }
+        )
+
+        batchWriteHandlerBucket.grantRead(batchWriteHandler)
+
+        batchWriteHandler.addEventSource(
+            new S3EventSource(batchWriteHandlerBucket, {
+                events: [s3.EventType.OBJECT_CREATED],
+                filters: [
+                    {
+                        prefix: 'testitems/',
+                    },
+                ],
+            })
+        )
     }
 }

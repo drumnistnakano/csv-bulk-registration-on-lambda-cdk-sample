@@ -1,7 +1,7 @@
 import { S3Event } from 'aws-lambda'
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3'
 import { DynamoDB } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb'
+import { DynamoDBDocument, PutCommand } from '@aws-sdk/lib-dynamodb'
 import { sdkStreamMixin } from '@smithy/util-stream'
 import { decode } from 'iconv-lite'
 import { parse } from 'csv/sync'
@@ -9,7 +9,7 @@ import { faker } from '@faker-js/faker'
 
 const s3 = new S3Client({ region: 'ap-northeast-1' })
 const ddb = new DynamoDB({ region: 'ap-northeast-1' })
-const ddbDoc = DynamoDBDocumentClient.from(ddb)
+const ddbDoc = DynamoDBDocument.from(ddb)
 const ddbTable = process.env.DYNAMODB_TABLE_NAME!
 
 exports.handler = async (event: S3Event): Promise<void> => {
